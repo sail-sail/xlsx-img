@@ -1,5 +1,5 @@
 ### xlsx-img
-node-xlsx suport parse image
+like [node-xlsx](https://github.com/mgcrea/node-xlsx) and suport parse image
 ```typescript
 npm install --save xlsx-img
 ```
