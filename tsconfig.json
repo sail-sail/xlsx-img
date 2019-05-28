@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
+    "sourceMap": false,
     "module": "commonjs",
-    "declaration": false,
+    "declaration": true,
     "noImplicitAny": false,
     "removeComments": true,
     "noLib": false,
@@ -11,10 +11,9 @@
     "allowSyntheticDefaultImports": true,
     "watch": false,
     "target": "esnext",
-    "allowJs": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "./dist",
+    "outDir": "./build/xlsx-img/src",
     "lib": [
       "esnext"
     ]

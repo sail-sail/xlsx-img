@@ -1,6 +1,6 @@
 {
   "name": "xlsx-img",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "node-xlsx image",
   "main": "src/index",
   "scripts": {
@@ -33,6 +33,7 @@
     "gulp-typescript": "5.0.1",
     "gulp-uglify-es": "1.0.4",
     "jest": "24.8.0",
+    "merge2": "1.2.3",
     "ts-jest": "24.0.2",
     "ts-loader": "6.0.1",
     "ts-node": "8.2.0",
