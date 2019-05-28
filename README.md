@@ -1,7 +1,7 @@
 ### xlsx-img
 node-xlsx suport parse image
 ```typescript
-npm install --save node-xlsx
+npm install --save xlsx-img
 ```
 ```typescript
 import { readFile } from "fs-extra";
