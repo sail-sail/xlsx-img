@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+*.log
+package-lock.json
+
+/build
+/sourcemap
+/nest/_uploadfile
+/_uploadfile
+
+/ng/documentation/dependencies.html
