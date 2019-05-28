@@ -2,9 +2,10 @@
   "name": "xlsx-img",
   "version": "1.0.0",
   "description": "node-xlsx image",
-  "main": "index.js",
+  "main": "src/index",
   "scripts": {
-    "test": "./node_modules/.bin/jest"
+    "test": "npx jest",
+    "compile": "npx gulp"
   },
   "keywords": [
     "node",
@@ -23,6 +24,8 @@
     "@types/fs-extra": "7.0.0",
     "@types/jest": "24.0.13",
     "@types/node": "12.0.2",
+    "@types/node-xlsx": "^0.12.1",
+    "@types/xml2js": "^0.4.4",
     "fs-extra": "8.0.1",
     "gulp": "4.0.2",
     "gulp-file": "0.4.0",
