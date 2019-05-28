@@ -5,7 +5,7 @@ npm install --save node-xlsx
 ```
 ```typescript
 import { readFile } from "fs-extra";
-import { parseXlsx } from "node-xlsx";
+import { parseXlsx } from "xlsx-img";
 
 (async () => {
   const buffer = await readFile(`${__dirname}/test/test.xlsx`);
