@@ -156,6 +156,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
           const xdrFrom = xdrTwoCellAnchor["xdr:from"];
           const xdrRowNum = Number(xdrFrom[0]["xdr:row"][0]);
           const xdrColNum = Number(xdrFrom[0]["xdr:col"][0]);
+          if(!xdrTwoCellAnchor["xdr:pic"]) continue;
           const xdrPic = xdrTwoCellAnchor["xdr:pic"][0];
           const xdrBlipFill = xdrPic["xdr:blipFill"][0];
           const aBlip = xdrBlipFill["a:blip"][0];
