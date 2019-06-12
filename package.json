@@ -1,11 +1,11 @@
 {
   "name": "xlsx-img",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "node-xlsx image",
   "main": "src/index",
   "scripts": {
     "test": "npx jest",
-    "compile": "npx gulp"
+    "build": "npx gulp"
   },
   "keywords": [
     "node",

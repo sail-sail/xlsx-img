@@ -84,6 +84,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
           resolve(result);
         });
       });
+      if(!sheet["worksheet"]["drawing"]) continue;
       const rId = sheet["worksheet"]["drawing"][0]["$"]["r:id"];
       const sheetRelsEntity = hzip.getEntry(`${ dirname(sheetEntity.fileName) }/_rels/${ basename(sheetEntity.fileName) }.rels`);
       if(!sheetRelsEntity) continue;
