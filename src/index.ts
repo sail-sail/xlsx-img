@@ -169,7 +169,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
             const targetEntity = hzip.getEntry(target);
             let targetBuf = targetEntity.cfile;
             //解压版本
-            if(targetEntity.unzipVersion[0] === 0x14 && targetEntity.unzipVersion[0] === 0x00) {
+            if(targetEntity.unzipVersion[0] === 0x14 && targetEntity.unzipVersion[1] === 0x00) {
               targetBuf = await new Promise((resolve, reject) => {
                 inflateRaw(targetBuf, function (err: any, result: any) {
                   if(err) {
