@@ -28,7 +28,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
     });
   });
   const workbook = await new Promise((resolve, reject) => {
-    parseString(workbookBuf, function (err, result) {
+    parseString(workbookBuf, function (err :any, result :any) {
       if(err) {
         reject(err);
         return;
@@ -47,7 +47,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
     });
   });
   const workbookRels = await new Promise((resolve, reject) => {
-    parseString(workbookRelsBuf, function (err, result) {
+    parseString(workbookRelsBuf, function (err :any, result :any) {
       if(err) {
         reject(err);
         return;
@@ -76,7 +76,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
         });
       });
       const sheet = await new Promise((resolve, reject) => {
-        parseString(sheetBuf, function (err, result) {
+        parseString(sheetBuf, function (err :any, result :any) {
           if(err) {
             reject(err);
             return;
@@ -98,7 +98,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
         });
       });
       const sheetRels = await new Promise((resolve, reject) => {
-        parseString(sheetRelsBuf, function (err, result) {
+        parseString(sheetRelsBuf, function (err :any, result :any) {
           if(err) {
             reject(err);
             return;
@@ -124,7 +124,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
           });
         });
         const drawing1 = await new Promise((resolve, reject) => {
-          parseString(drawing1Buf, function (err, result) {
+          parseString(drawing1Buf, function (err :any, result :any) {
             if(err) {
               reject(err);
               return;
@@ -142,7 +142,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
           });
         });
         const drawing1Rels = await new Promise((resolve, reject) => {
-          parseString(drawing1RelsBuf, function (err, result) {
+          parseString(drawing1RelsBuf, function (err :any, result :any) {
             if(err) {
               reject(err);
               return;
@@ -167,7 +167,19 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
             if(relationship["Id"] !== rEmbed) continue;
             const target = normalize(`xl/drawings/${ relationship["Target"] }`).replace(/\\/gm, "/");
             const targetEntity = hzip.getEntry(target);
-            const targetBuf = targetEntity.cfile;
+            let targetBuf = targetEntity.cfile;
+            //解压版本
+            if(targetEntity.unzipVersion[0] === 0x14 && targetEntity.unzipVersion[0] === 0x00) {
+              targetBuf = await new Promise((resolve, reject) => {
+                inflateRaw(targetBuf, function (err: any, result: any) {
+                  if(err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve(result);
+                });
+              });
+            }
             // console.log({ sheetName, xdrRowNum, xdrColNum, target });
             for (let i2 = 0; i2 < rvObj.length; i2++) {
               const dataObj = rvObj[i2];
