@@ -153,7 +153,10 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
         const relationships = drawing1Rels["Relationships"]["Relationship"];
         const xdrTwoCellAnchors: any[] = drawing1["xdr:wsDr"]["xdr:twoCellAnchor"];
         const xdrOneCellAnchors = drawing1["xdr:wsDr"]["xdr:oneCellAnchor"];
-        const xdrCellAnchors = xdrTwoCellAnchors.concat(xdrOneCellAnchors);
+        let xdrCellAnchors = xdrTwoCellAnchors || [];
+        if(xdrOneCellAnchors) {
+          xdrCellAnchors = xdrCellAnchors.concat(xdrOneCellAnchors);
+        }
         for (let i = 0; i < xdrCellAnchors.length; i++) {
           const xdrTwoCellAnchor = xdrCellAnchors[i];
           const xdrFrom = xdrTwoCellAnchor["xdr:from"];
