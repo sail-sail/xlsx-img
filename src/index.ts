@@ -151,9 +151,11 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
           });
         });
         const relationships = drawing1Rels["Relationships"]["Relationship"];
-        const xdrTwoCellAnchors = drawing1["xdr:wsDr"]["xdr:twoCellAnchor"];
-        for (let i = 0; i < xdrTwoCellAnchors.length; i++) {
-          const xdrTwoCellAnchor = xdrTwoCellAnchors[i];
+        const xdrTwoCellAnchors: any[] = drawing1["xdr:wsDr"]["xdr:twoCellAnchor"];
+        const xdrOneCellAnchors = drawing1["xdr:wsDr"]["xdr:oneCellAnchor"];
+        const xdrCellAnchors = xdrTwoCellAnchors.concat(xdrOneCellAnchors);
+        for (let i = 0; i < xdrCellAnchors.length; i++) {
+          const xdrTwoCellAnchor = xdrCellAnchors[i];
           const xdrFrom = xdrTwoCellAnchor["xdr:from"];
           const xdrRowNum = Number(xdrFrom[0]["xdr:row"][0]);
           const xdrColNum = Number(xdrFrom[0]["xdr:col"][0]);
