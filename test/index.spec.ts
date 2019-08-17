@@ -7,8 +7,10 @@ test("parseXlsx", async () => {
   const data = await parseXlsx(buffer);
   expect(data[0].name).toBe("Sheet1");
   for (let i = 4; i < 6; i++) {
-    const item = data[0].data[i];
-    expect(item[4]).toBeInstanceOf(Buffer);
+    const itemData = data[0].data[i];
+    expect(itemData[4]).toBeUndefined();
+    const itemImage = data[0].image[i];
+    expect(itemImage[4]).toBeInstanceOf(Buffer);
   }
 });
 

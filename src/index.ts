@@ -14,8 +14,13 @@ import * as moment from "moment";
 export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
   name: string,
   data: Array<Array<any>>,
+  image: Array<Array<any>>,
 }[]> {
-  const rvObj = await xlsx.parse(mixed, options);
+  const rvObj = xlsx.parse(mixed, options);
+  for (let i2 = 0; i2 < rvObj.length; i2++) {
+    const dataObj = rvObj[i2];
+    (<any>dataObj).image = [];
+  }
   const hzip = new Hzip(mixed);
   const workbookEntity = hzip.getEntry(`xl/workbook.xml`);
   const workbookBuf = await new Promise((resolve, reject) => {
@@ -187,16 +192,17 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
             }
             // console.log({ sheetName, xdrRowNum, xdrColNum, target });
             for (let i2 = 0; i2 < rvObj.length; i2++) {
-              const dataObj = rvObj[i2];
+              const dataObj = <any>rvObj[i2];
               if(dataObj.name !== sheetName) continue;
-              (<any>dataObj.data[xdrRowNum][xdrColNum]) = targetBuf;
+              dataObj.image[xdrRowNum] = dataObj.image[xdrRowNum] || [];
+              dataObj.image[xdrRowNum][xdrColNum] = targetBuf;
             }
           }
         }
       }
     }
   }
-  return rvObj;
+  return <any>rvObj;
 };
 
 export function xlsx2Date(val: number | string | Date): Date {
@@ -221,6 +227,6 @@ export function xlsx2Date(val: number | string | Date): Date {
   if(isNaN(<any>date)) {
     date = undefined;
   }
-  console.log(date)
+  // console.log(date);
   return date;
 }
