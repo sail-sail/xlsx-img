@@ -170,6 +170,7 @@ export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
           if(!xdrTwoCellAnchor["xdr:pic"]) continue;
           const xdrPic = xdrTwoCellAnchor["xdr:pic"][0];
           const xdrBlipFill = xdrPic["xdr:blipFill"][0];
+          if(!xdrBlipFill["a:blip"]) continue;
           const aBlip = xdrBlipFill["a:blip"][0];
           const rEmbed = aBlip["$"]["r:embed"];
           for (let k = 0; k < relationships.length; k++) {
