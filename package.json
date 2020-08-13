@@ -1,6 +1,6 @@
 {
   "name": "xlsx-img",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "node-xlsx image",
   "main": "src/index",
   "scripts": {
@@ -15,29 +15,28 @@
   "author": "Sail",
   "license": "ISC",
   "dependencies": {
-    "hzip": "^1.1.0",
-    "moment": "^2.24.0",
-    "node-xlsx": "^0.15.0",
-    "xml2js": "^0.4.19"
+    "hzip": "1.1.0",
+    "moment": "2.27.0",
+    "xlsx": "0.16.6",
+    "xml2js": "0.4.23"
   },
   "devDependencies": {
-    "@types/fs-extra": "8.0.0",
-    "@types/jest": "24.0.17",
-    "@types/node": "12.7.2",
-    "@types/node-xlsx": "0.12.1",
-    "@types/xml2js": "0.4.4",
-    "fs-extra": "8.1.0",
+    "@types/fs-extra": "9.0.1",
+    "@types/jest": "26.0.9",
+    "@types/node": "14.0.27",
+    "@types/xml2js": "0.4.5",
+    "fs-extra": "9.0.1",
     "gulp": "4.0.2",
     "gulp-file": "0.4.0",
     "gulp-sourcemaps": "2.6.5",
-    "gulp-typescript": "5.0.1",
-    "gulp-uglify-es": "1.0.4",
-    "jest": "24.8.0",
-    "merge2": "1.2.3",
-    "ts-jest": "24.0.2",
-    "ts-loader": "6.0.1",
-    "ts-node": "8.2.0",
-    "tsconfig-paths": "3.8.0",
-    "typescript": "3.5.3"
+    "gulp-typescript": "6.0.0-alpha.1",
+    "gulp-uglify-es": "2.0.0",
+    "jest": "26.4.0",
+    "merge2": "1.4.1",
+    "ts-jest": "26.2.0",
+    "ts-loader": "8.0.2",
+    "ts-node": "8.10.2",
+    "tsconfig-paths": "3.9.0",
+    "typescript": "3.9.7"
   }
 }

@@ -1,27 +1,182 @@
 import { inflateRaw } from "zlib";
-import xlsx from "node-xlsx";
+import * as xlsx from "xlsx";
 import * as Hzip from "hzip";
 import { parseString } from "xml2js";
 import { basename, dirname } from "path";
 import { normalize } from "path";
 import * as moment from "moment";
 
+function safe_decode_range(range: any) {
+	var o = {s:{c:0,r:0},e:{c:0,r:0}};
+	var idx = 0, i = 0, cc = 0;
+	var len = range.length;
+	for(idx = 0; i < len; ++i) {
+		if((cc=range.charCodeAt(i)-64) < 1 || cc > 26) break;
+		idx = 26*idx + cc;
+	}
+	o.s.c = --idx;
+
+	for(idx = 0; i < len; ++i) {
+		if((cc=range.charCodeAt(i)-48) < 0 || cc > 9) break;
+		idx = 10*idx + cc;
+	}
+	o.s.r = --idx;
+
+	if(i === len || range.charCodeAt(++i) === 58) { o.e.c=o.s.c; o.e.r=o.s.r; return o; }
+
+	for(idx = 0; i != len; ++i) {
+		if((cc=range.charCodeAt(i)-64) < 1 || cc > 26) break;
+		idx = 26*idx + cc;
+	}
+	o.e.c = --idx;
+
+	for(idx = 0; i != len; ++i) {
+		if((cc=range.charCodeAt(i)-48) < 0 || cc > 9) break;
+		idx = 10*idx + cc;
+	}
+	o.e.r = --idx;
+	return o;
+}
+
+function encode_row(row: number) { return "" + (row + 1); };
+function encode_col(col: number) { if(col < 0) throw new Error("invalid column " + col); var s=""; for(++col; col; col=Math.floor((col-1)/26)) s = String.fromCharCode(((col-1)%26) + 65) + s; return s; };
+var basedate = new Date(1899, 11, 30, 0, 0, 0); // 2209161600000
+function datenum(v: Date, date1904?: boolean) {
+	var epoch = v.getTime();
+	if(date1904) epoch -= 1462*24*60*60*1000;
+	var dnthresh = basedate.getTime() + (v.getTimezoneOffset() - basedate.getTimezoneOffset()) * 60000;
+	return (epoch - dnthresh) / (24 * 60 * 60 * 1000);
+}
+function safe_format_cell(cell: any, v: any) {
+  var q = (cell.t == 'd' && v instanceof Date);
+	if(cell.z != null) try { return (cell.w = xlsx.SSF.format(cell.z, q ? datenum(v) : v)); } catch(e) { }
+	try { return (cell.w = xlsx.SSF.format((cell.XF||{}).numFmtId||(q ? 14 : 0),  q ? datenum(v) : v)); } catch(e) { return ''+v; }
+}
+
+function format_cell(cell: any, v: any, o: any) {
+	if(cell == null || cell.t == null || cell.t == 'z') return "";
+	if(cell.w !== undefined) return cell.w;
+	if(cell.t == 'd' && !cell.z && o && o.dateNF) cell.z = o.dateNF;
+	if(v == undefined) return safe_format_cell(cell, cell.v);
+	return safe_format_cell(cell, v);
+}
+function make_json_row(sheet: any, r: any, R: any, cols: any, header: number, hdr: any, dense: boolean, o: any) {
+	var rr = encode_row(R);
+	var defval = o.defval, raw = o.raw || !Object.prototype.hasOwnProperty.call(o, "raw");
+	var isempty = true;
+  var row: any = (header === 1) ? [] : {};
+  var hyperlink = [ ];
+	if(header !== 1) {
+		if(Object.defineProperty) try { Object.defineProperty(row, '__rowNum__', {value:R, enumerable:false}); } catch(e) { row.__rowNum__ = R; }
+		else row.__rowNum__ = R;
+	}
+	if(!dense || sheet[R]) for (var C = r.s.c; C <= r.e.c; ++C) {
+		var val = dense ? sheet[R][C] : sheet[cols[C] + rr];
+		if(val === undefined || val.t === undefined) {
+			if(defval === undefined) continue;
+			if(hdr[C] != null) { row[hdr[C]] = defval; }
+			continue;
+		}
+		var v = val.v;
+		switch(val.t){
+			case 'z': if(v == null) break; continue;
+			case 'e': v = void 0; break;
+			case 's': case 'd': case 'b': case 'n': break;
+			default: throw new Error('unrecognized type ' + val.t);
+		}
+		if(hdr[C] != null) {
+			if(v == null) {
+				if(defval !== undefined) row[hdr[C]] = defval;
+				else if(raw && v === null) row[hdr[C]] = null;
+				else continue;
+			} else {
+				row[hdr[C]] = raw || (o.rawNumbers && val.t == "n") ? v : format_cell(val,v,o);
+			}
+			if(v != null) isempty = false;
+    }
+    //Sail
+    hyperlink[hdr[C]] = val.l;
+	}
+	return { row, hyperlink, isempty };
+}
+function sheet_to_json(sheet: any, opts: any) {
+	if(sheet == null || sheet["!ref"] == null) return { data: [], hyperlink: [] };
+	var val: any = {t:'n',v:0}, header = 0, offset = 1, hdr = [], v=0, vv="";
+	var r = {s:{r:0,c:0},e:{r:0,c:0}};
+	var o = opts || {};
+	var range = o.range != null ? o.range : sheet["!ref"];
+	if(o.header === 1) header = 1;
+	else if(o.header === "A") header = 2;
+	else if(Array.isArray(o.header)) header = 3;
+	else if(o.header == null) header = 0;
+	switch(typeof range) {
+		case 'string': r = safe_decode_range(range); break;
+		case 'number': r = safe_decode_range(sheet["!ref"]); r.s.r = range; break;
+		default: r = range;
+	}
+	if(header > 0) offset = 0;
+	var rr = encode_row(r.s.r);
+	var cols = [];
+	var out = [];
+	var hyperlink = [];
+	var outi = 0, counter = 0;
+	var dense = Array.isArray(sheet);
+	var R = r.s.r, C = 0, CC = 0;
+	if(dense && !sheet[R]) sheet[R] = [];
+	for(C = r.s.c; C <= r.e.c; ++C) {
+		cols[C] = encode_col(C);
+		val = dense ? sheet[R][C] : sheet[cols[C] + rr];
+		switch(header) {
+			case 1: hdr[C] = C - r.s.c; break;
+			case 2: hdr[C] = cols[C]; break;
+			case 3: hdr[C] = o.header[C - r.s.c]; break;
+			default:
+				if(val == null) val = {w: "__EMPTY", t: "s"};
+				vv = v = format_cell(val, null, o);
+				counter = 0;
+				for(CC = 0; CC < hdr.length; ++CC) if(hdr[CC] == vv) vv = v + "_" + (++counter);
+				hdr[C] = vv;
+		}
+	}
+	for (R = r.s.r + offset; R <= r.e.r; ++R) {
+    var row = make_json_row(sheet, r, R, cols, header, hdr, dense, o);
+    hyperlink[outi] = row.hyperlink;
+		if((row.isempty === false) || (header === 1 ? o.blankrows !== false : !!o.blankrows)) out[outi++] = row.row;
+	}
+	out.length = outi;
+	return { data: out, hyperlink };
+}
+
 /**
  * 解析Excel
- * @param mixed 
+ * @param buffer 
  * @param _options 
  */
-export async function parseXlsx(mixed: Buffer, options?: {}): Promise<{
+export async function parseXlsx(buffer: Buffer, options?: xlsx.ParsingOptions): Promise<{
   name: string,
   data: Array<Array<any>>,
   image: Array<Array<any>>,
+  hyperlink: Array<Array<{
+    Target: string,
+    Rel: {
+      Target: string,
+      TargetMode: string,
+    },
+    Tooltip: string,
+  }>>,
 }[]> {
-  const rvObj = xlsx.parse(mixed, options);
+  options = options || { };
+  const workSheet = xlsx.read(buffer, options);
+  const rvObj = Object.keys(workSheet.Sheets).map((name) => {
+    const sheet = workSheet.Sheets[name];
+    const { data, hyperlink } = sheet_to_json(sheet, { header: 1, raw: options.raw !== false });
+    return { name, data, hyperlink };
+  });
   for (let i2 = 0; i2 < rvObj.length; i2++) {
     const dataObj = rvObj[i2];
     (<any>dataObj).image = [];
   }
-  const hzip = new Hzip(mixed);
+  const hzip = new Hzip(buffer);
   const workbookEntity = hzip.getEntry(`xl/workbook.xml`);
   const workbookBuf = await new Promise((resolve, reject) => {
     inflateRaw(workbookEntity.cfile,(err, buf) => {
@@ -228,6 +383,5 @@ export function xlsx2Date(val: number | string | Date): Date {
   if(isNaN(<any>date)) {
     date = undefined;
   }
-  // console.log(date);
   return date;
 }
