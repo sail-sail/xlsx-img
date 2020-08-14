@@ -8,9 +8,9 @@ const project = "xlsx-img";
 
 const dist = `./build/${project}`;
 //----------------------------------------------------------------------------------------------------- config
-gulp.task("patch", function() {
-  return gulp.src(["patches/*.patch"], { allowEmpty: true })
-    .pipe(gulp.dest(`${dist}/patches/`));
+gulp.task("js", function() {
+  return gulp.src(["src/*.js"], { allowEmpty: true })
+    .pipe(gulp.dest(`${dist}/src/`));
 });
 gulp.task("config", function() {
   return gulp.src(["package.json"], { allowEmpty: true })
@@ -35,4 +35,4 @@ gulp.task("ts", function() {
   ]);
 });
 
-gulp.task("default", gulp.series("patch","config","ts"));
+gulp.task("default", gulp.series("js","config","ts"));
