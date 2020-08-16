@@ -1,6 +1,6 @@
 {
   "name": "xlsx-img",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "node-xlsx image",
   "main": "src/index",
   "scripts": {
@@ -18,7 +18,7 @@
   "dependencies": {
     "hzip": "1.1.0",
     "moment": "2.27.0",
-    "xlsx": "0.14.5",
+    "xlsx": "0.16.6",
     "xml2js": "0.4.23"
   },
   "devDependencies": {
