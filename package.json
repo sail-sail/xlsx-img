@@ -19,7 +19,7 @@
     "hzip": "1.1.0",
     "moment": "2.27.0",
     "xlsx": "0.18.5",
-    "xml2js": "0.4.23"
+    "xml2js": "0.5.0"
   },
   "devDependencies": {
     "@types/fs-extra": "9.0.1",
