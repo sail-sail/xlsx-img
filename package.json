@@ -18,7 +18,7 @@
   "dependencies": {
     "hzip": "1.1.0",
     "moment": "2.27.0",
-    "xlsx": "0.16.6",
+    "xlsx": "0.18.5",
     "xml2js": "0.4.23"
   },
   "devDependencies": {
